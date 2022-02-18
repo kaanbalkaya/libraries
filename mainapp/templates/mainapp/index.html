@@ -1,0 +1,38 @@
+{% extends './base.html' %}
+
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+
+  <input type="text" name="search_text">
+  <input type="submit" name="search" value="Ara">
+</form>
+<table border='1'>
+  <tr>
+      <td>
+          <h4>ISBN</h4>
+      </td>
+      <td>
+          <h4>Kitap Adı</h4>
+      </td>
+      <td>
+          <h4>Yazar</h4>
+      </td>
+</tr>
+{%for l in liste%}
+
+  <tr>
+  <td>
+    {{l.isbn}}
+  </td>
+  <td>
+    {{l.title}}
+  </td>
+  <td>
+    {{l.writer}}
+  </td>
+
+</tr>
+{%endfor%}
+</table>
+{% endblock %}

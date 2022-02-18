@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="tr" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <h3>Hoşgeldiniz, {{ user.username|default:'Misafir' }} Kullanıcı!</h3>
+    <a href="{% url 'mainapp:index' %}">Anasayfa</a>&nbsp;
+
+    {% if user.is_authenticated %}
+        <a href="{% url 'mainapp:books' %}">Kitaplar</a>&nbsp;
+        <a href="{% url 'mainapp:readers' %}">Okurlar</a>&nbsp;
+        <a href="{% url 'mainapp:lendings' %}">Ödünç verme</a>&nbsp;
+    {% endif %}
+
+    {% if user.is_staff %}
+        <a href="{% url 'mainapp:users' %}"> Kullanıcı Ekle</a>&nbsp;
+    {% endif %}
+
+    {% if user.is_superuser %}
+        <a href="{% url 'mainapp:units' %}">Kurumlar</a>&nbsp;
+        <a href="{% url 'mainapp:libraries' %}">Kütüphaneler</a>&nbsp;
+    {% endif %}
+
+
+    {% if user.is_authenticated %}
+        <a href="{% url 'logout' %}">Oturumu kapat</a>
+    {% else %}
+        <a href="{% url 'login' %}">Oturum aç</a>
+    {% endif %}
+    <br>
+    <br>
+
+    {%block content%}
+    {%endblock content%}
+  </body>
+</html>
