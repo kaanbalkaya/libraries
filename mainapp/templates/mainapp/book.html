@@ -1,0 +1,21 @@
+{% extends './base.html' %}
+
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+
+  {%for b in book%}
+
+    {{b.isbn}}
+
+    {{b.title}}
+
+    {{b.writer}}
+
+  {%endfor%}
+  <br>
+  <input type="submit" name="clear" value="sil">
+</form>
+
+
+{% endblock %}

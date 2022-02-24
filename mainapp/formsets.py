@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class UnitForm(ModelForm):
     class Meta:
         model=Unit
-        fields='__all__'
+        fields=['id','name','address']
 
 class BookForm(ModelForm):
     class Meta:
@@ -15,12 +15,12 @@ class BookForm(ModelForm):
 class LibraryForm(ModelForm):
     class Meta:
         model=Library
-        fields='__all__'
+        fields=['book','amount']
 
 class ReaderForm(ModelForm):
     class Meta:
         model=Reader
-        fields='__all__'
+        fields=['school_num','name','grade','department']
 
 class LendingForm(ModelForm):
     class Meta:

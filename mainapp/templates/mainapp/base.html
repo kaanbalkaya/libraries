@@ -8,13 +8,13 @@
     <a href="{% url 'mainapp:index' %}">Anasayfa</a>&nbsp;
 
     {% if user.is_authenticated %}
-        <a href="{% url 'mainapp:books' %}">Kitaplar</a>&nbsp;
-        <a href="{% url 'mainapp:readers' %}">Okurlar</a>&nbsp;
-        <a href="{% url 'mainapp:lendings' %}">Ödünç verme</a>&nbsp;
+        <a href="{% url 'mainapp:lendings' %}">Ödünç Verme</a>&nbsp;
+        <a href="{% url 'mainapp:addbook' %}">Kitap Ekleme</a>&nbsp;
+        <a href="{% url 'mainapp:readers' %}">((Okur Ekleme))</a>&nbsp;
     {% endif %}
 
     {% if user.is_staff %}
-        <a href="{% url 'mainapp:users' %}"> Kullanıcı Ekle</a>&nbsp;
+        <a href="{% url 'mainapp:users' %}">((Kullanıcı Ekleme))</a>&nbsp;
     {% endif %}
 
     {% if user.is_superuser %}
