@@ -1,0 +1,45 @@
+{% extends './base.html' %}
+
+{% block content %}
+<strong>Kitap Ekleme</strong><br>
+Eklemek istedğiniz kitabı "isbn" ile aratınız<br>
+{{msg}}
+<form method="post">
+  {% csrf_token %}
+  ISBN :
+  <input type="text" maxlength="13" name="search_text">
+  <input type="submit" name="search" value="Ara">
+</form>
+<form method="post">
+  <table border='1'>
+    <tr>
+        <td>
+            <h4>ISBN</h4>
+        </td>
+        <td>
+            <h4>Kitap Adı</h4>
+        </td>
+        <td>
+            <h4>Yazar</h4>
+        </td>
+        <td>
+            <h4> </h4>
+        </td>
+  </tr>
+  {%for l in liste%}
+
+    <tr>
+    <td>
+      <a href="/books/{{l.isbn}}">{{l.isbn}}</a>
+    </td>
+    <td>
+      {{l.title}}
+    </td>
+    <td>
+      {{l.writer}}
+    </td>
+  </tr>
+  {%endfor%}
+  </table>
+</form>
+{% endblock %}

@@ -4,17 +4,15 @@
 <form method="post">
   {% csrf_token %}
 
-  {%for b in book%}
-
-    {{b.isbn}}
-
-    {{b.title}}
-
-    {{b.writer}}
-
-  {%endfor%}
-  <br>
-  <input type="submit" name="clear" value="sil">
+    <strong>ISBN      :</strong> {{book.isbn}}
+    <br>
+    <strong>Kitap Adı :</strong> {{book.title}}
+    <br>
+    <strong>Yazar     :</strong> {{book.writer}}
+    <br>
+    <strong>Açıklama  :</strong> <input type="text" id="description" name="description"><br>
+    <br>
+  <input type="submit" name="add" value="Ekle">
 </form>
 
 

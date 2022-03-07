@@ -8,8 +8,8 @@
     <a href="{% url 'mainapp:index' %}">Anasayfa</a>&nbsp;
 
     {% if user.is_authenticated %}
-        <a href="{% url 'mainapp:lendings' %}">Ödünç Verme</a>&nbsp;
-        <a href="{% url 'mainapp:addbook' %}">Kitap Ekleme</a>&nbsp;
+        <a href="{% url 'mainapp:inventory' %}">Ödünç Verme</a>&nbsp;
+        <a href="{% url 'mainapp:searchbook' %}">Kitap Ekleme</a>&nbsp;
         <a href="{% url 'mainapp:readers' %}">((Okur Ekleme))</a>&nbsp;
     {% endif %}
 

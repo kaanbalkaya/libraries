@@ -1,10 +1,10 @@
 {% extends './base.html' %}
 
 {% block content %}
-<strong>Anasayfa</strong>
+<strong>Ödünç Verme İşlemleri</strong>
 <form method="post">
   {% csrf_token %}
-Kitap Adı : 
+  ISBN :
   <input type="text" name="search_text">
   <input type="submit" name="search" value="Ara">
 </form>
@@ -24,13 +24,14 @@ Kitap Adı :
 
   <tr>
   <td>
-    {{l.isbn}}
+        <a href="/inventory/{{l.id}}">{{l.book.isbn}}</a>
+
   </td>
   <td>
-    {{l.title}}
+    {{l.book.title}}
   </td>
   <td>
-    {{l.writer}}
+    {{l.book.writer}}
   </td>
 
 </tr>

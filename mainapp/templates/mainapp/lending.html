@@ -1,42 +1,25 @@
 {% extends './base.html' %}
 
 {% block content %}
+{{msg}}
 <form method="post">
   {% csrf_token %}
 
-  <input type="text" name="search_text">
+  <strong>ISBN      :</strong> {{library_entry.book.isbn}}
+  <br>
+  <strong>Kitap Adı :</strong> {{library_entry.book.title}}
+  <br>
+  <strong>Yazar     :</strong> {{library_entry.book.writer}}
+  <br>
+
+
+  Okul Numarası :
+  <input type="text" name="school_num">
   <input type="submit" name="search" value="Ara">
+
+  <input type="submit" value="Kaydet">
+
 </form>
-<table border='1'>
-  <tr>
-      <td>
-          <h4>ISBN</h4>
-      </td>
-      <td>
-          <h4>Kitap Adı</h4>
-      </td>
-      <td>
-          <h4>Yazar</h4>
-      </td>
-</tr>
-{%for l in liste%}
-
-  <tr>
-  <td>
-        <a href="/books/{{l.isbn}}">{{l.isbn}}</a>
 
 
-  </td>
-  <td>
-
-
-    {{l.title}}
-  </td>
-  <td>
-    {{l.writer}}
-  </td>
-
-</tr>
-{%endfor%}
-</table>
 {% endblock %}

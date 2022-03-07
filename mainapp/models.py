@@ -11,20 +11,22 @@ class Unit(models.Model):
     #user=models.OneToOneField(User, on_delete=models.CASCADE)
 
 class Book(models.Model):
-    isbn=models.CharField(db_column="isbn", verbose_name="isbn",max_length=13, primary_key=True)
-    title=models.CharField(db_column="title", verbose_name="kitap adı",max_length=50)
-    writer=models.CharField(db_column="writer", verbose_name="yazar",max_length=50 )
-    genre=models.CharField(db_column="genre", verbose_name="tür",max_length=20)
-    publisher=models.CharField(db_column="publisher", verbose_name="yayıncı",max_length=20)
-    publish_year=models.IntegerField(db_column="publish_year", verbose_name="yayın yılı",)
+    isbn=models.CharField(verbose_name="isbn",max_length=13, primary_key=True)
+    title=models.CharField(verbose_name="kitap adı",max_length=50)
+    writer=models.CharField(verbose_name="yazar",max_length=50 )
+    genre=models.CharField(verbose_name="tür",max_length=20)
+    publisher=models.CharField(verbose_name="yayıncı",max_length=20)
+    publish_year=models.IntegerField(verbose_name="yayın yılı",)
 
 class Library(models.Model):
     unit=models.ForeignKey(Unit, on_delete=models.CASCADE)
     book=models.ForeignKey(Book,on_delete=models.CASCADE)
     amount=models.IntegerField(default=1)
     description=models.CharField(max_length=100, default="")
+    """
     class Meta:
         UniqueConstraint(fields=["unit","book"], name="book_record")
+    """
 
 class Reader(models.Model):
     unit=models.ForeignKey(Unit, on_delete=models.CASCADE)
@@ -39,7 +41,11 @@ class Reader(models.Model):
 
 class Lending(models.Model):
     unit=models.ForeignKey(Unit, on_delete=models.CASCADE)
-    reader=models.ForeignKey(Reader, on_delete=models.CASCADE)
+    """
     book=models.ForeignKey(Book,on_delete=models.CASCADE)
+    """
+    library_entry=models.ForeignKey(Library, on_delete=models.CASCADE)
+    reader=models.ForeignKey(Reader, on_delete=models.CASCADE)
     lend_date=models.DateField()
     back_date=models.DateField()
+    returned=models.BooleanField(default=False)
