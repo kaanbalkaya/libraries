@@ -3,12 +3,14 @@ from django.db.models import UniqueConstraint, Q
 from django.contrib.auth.models import User
 
 
-# Create your models here.
 class Unit(models.Model):
     id=models.CharField(max_length=8, primary_key=True)
+    user=models.ForeignKey(User, on_delete=models.CASCADE)
     name=models.CharField(max_length=100)
     address=models.CharField(max_length=200)
     #user=models.OneToOneField(User, on_delete=models.CASCADE)
+    def __str__(self):
+        return self.name
 
 class Book(models.Model):
     isbn=models.CharField(verbose_name="isbn",max_length=13, primary_key=True)
@@ -18,15 +20,18 @@ class Book(models.Model):
     publisher=models.CharField(verbose_name="yayıncı",max_length=20)
     publish_year=models.IntegerField(verbose_name="yayın yılı",)
 
+    def __str__(self):
+        return self.isbn +"-"+self.title
+
 class Library(models.Model):
     unit=models.ForeignKey(Unit, on_delete=models.CASCADE)
     book=models.ForeignKey(Book,on_delete=models.CASCADE)
     amount=models.IntegerField(default=1)
     description=models.CharField(max_length=100, default="")
-    """
-    class Meta:
-        UniqueConstraint(fields=["unit","book"], name="book_record")
-    """
+
+    def __str__(self):
+        return self.unit.__str__() +" - "+self.book.__str__()
+
 
 class Reader(models.Model):
     unit=models.ForeignKey(Unit, on_delete=models.CASCADE)
@@ -36,16 +41,18 @@ class Reader(models.Model):
     grade=models.IntegerField()
     department=models.CharField(max_length=5)
     books_lended=models.IntegerField(default=0)
-    #class Meta:
-    #    constraints = [UniqueConstraint(fields=['unit', 'school_num'], name='reader_id'),]
+
+    def __str__(self):
+        return self.school_num +" - "+self.name
+
 
 class Lending(models.Model):
     unit=models.ForeignKey(Unit, on_delete=models.CASCADE)
-    """
-    book=models.ForeignKey(Book,on_delete=models.CASCADE)
-    """
     library_entry=models.ForeignKey(Library, on_delete=models.CASCADE)
     reader=models.ForeignKey(Reader, on_delete=models.CASCADE)
     lend_date=models.DateField()
     back_date=models.DateField()
     returned=models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.reader.__str__() +"-"+self.book.__str__()

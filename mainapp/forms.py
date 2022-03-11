@@ -20,7 +20,7 @@ class LibraryForm(ModelForm):
 class ReaderForm(ModelForm):
     class Meta:
         model=Reader
-        fields=['school_num','name','grade','department']
+        fields=['name','grade','department']
 
 class LendingForm(ModelForm):
     class Meta:

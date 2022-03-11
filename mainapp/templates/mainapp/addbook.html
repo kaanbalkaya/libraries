@@ -4,9 +4,9 @@
 {{msg}}
 <form method="post">
   {% csrf_token %}
-
+  {{reader}}<br>
   {{formset.as_p}}
-  <input type="text" id="description" name="description"><br>
+  Açıklama : <input type="text" id="description" name="description"><br>
 
   <input type="submit" value="Kaydet">
 

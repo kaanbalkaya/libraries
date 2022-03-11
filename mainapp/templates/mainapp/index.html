@@ -2,13 +2,14 @@
 
 {% block content %}
 <strong>Anasayfa</strong>
+{{nsg}}
 <form method="post">
   {% csrf_token %}
-Kitap Adı : 
+Kitap Adı :
   <input type="text" name="search_text">
   <input type="submit" name="search" value="Ara">
 </form>
-<table border='1'>
+<table frame ='void' border='1'>
   <tr>
       <td>
           <h4>ISBN</h4>

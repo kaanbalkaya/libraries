@@ -1,0 +1,23 @@
+{% extends './base.html' %}
+
+{% block content %}
+<strong>ISBN      :</strong> {{library_entry.book.isbn}}
+<br>
+<strong>Kitap Adı :</strong> {{library_entry.book.title}}
+<br>
+<strong>Yazar     :</strong> {{library_entry.book.writer}}
+<br>
+
+{{msg}}
+
+<form method="post">
+  {% csrf_token %}
+
+  {{formset.as_p}}
+
+  <input type="submit" value="Kaydet">
+
+</form>
+
+
+{% endblock %}

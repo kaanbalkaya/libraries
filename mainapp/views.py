@@ -5,6 +5,10 @@ from .models import Book, Unit, Library, Reader, Lending
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
 from datetime import datetime, timedelta
+from django.core.exceptions import ObjectDoesNotExist
+
+from django.http import HttpResponse
+import csv
 
 def register_book(book, unit, description=""):
     try:
@@ -25,9 +29,10 @@ def index(request):
         liste=Book.objects.all()
     return render(request,'mainapp/index.html', {'liste':liste})
 
-def create_reader():
+@login_required
+def success(request):
+    return render(request,"mainapp/success.html")
 
-    pass
 
 @login_required
 def searchbook(request):
@@ -53,35 +58,60 @@ def addbook(request):
             register_book(book,Unit.objects.get(id=request.user.username), description)
 
     else:
-        msg="Aradığınız kitap bulunamadı, eklemek için aşağıdaki formu doldurun."
+        msg="Aradığınız kitap bulunamadı, Eklemek için aşağıdaki formu doldurunuz."
         formset=BookForm()
     return render(request,'mainapp/addbook.html', {'formset':formset, 'msg':msg})
 
 
 
 @login_required
-def readers(request):
+def addreader(request, unit_id, school_num, library_entry_id):
     msg="Kayıt Giriniz."
-    if request.method == 'POST':
-        formset = ReaderForm(request.POST)
-        if formset.is_valid():
-            #username ve kurum kodları aynı, aktif kullanıcının adı üzerinden
-            #ilgili kuruma ulaşabiliyoruz
-            #istisnası admin
-            unit_id=request.user.username
-            school_num=formset.cleaned_data["school_num"]
-            id=unit_id+'-'+school_num
-            if Reader.objects.filter(id=id).exists():
-                msg="kullanıcı zaten kayıtlı"
-                formset=ReaderForm()
-            else:
-                reader=formset.save(commit=False)
-                reader.unit=Unit.objects.get(id=unit_id)
-                reader.id=id
-                reader.save()
-    else:
-        formset=ReaderForm()
-    return render(request,'mainapp/formset.html',{'formset':formset,'title':'readers', 'msg':msg})
+    id=unit_id+'-'+school_num
+    library_entry=Library.objects.get(id=library_entry_id)
+    reader=Reader()
+    try:
+        reader=Reader.objects.get(id=id)
+        l=Lending(unit=Unit.objects.get(id=request.user.username),
+                                        reader=reader,
+                                        library_entry=library_entry,
+                                        lend_date=datetime.now().strftime("%Y-%m-%d"),
+                                        back_date=(datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d"))
+        l.save()
+        return redirect("/success")
+    except ObjectDoesNotExist:
+        if request.method == 'POST':
+            formset = ReaderForm(request.POST)
+            if formset.is_valid():
+                #username ve kurum kodları aynı, aktif kullanıcının adı üzerinden
+                #ilgili kuruma ulaşabiliyoruz
+                #istisnası admin
+                if Reader.objects.filter(id=id).exists():
+                    msg="kullanıcı zaten kayıtlı"
+                    formset=ReaderForm()
+                else:
+                    reader=formset.save(commit=False)
+                    reader.unit=Unit.objects.get(id=unit_id)
+                    reader.id=id
+                    reader.school_num=school_num
+                    reader.books_lended=reader.books_lended+1
+                    reader.save()
+                    l=Lending(unit=Unit.objects.get(id=request.user.username),
+                                                    reader=reader,
+                                                    library_entry=library_entry,
+                                                    lend_date=datetime.now().strftime("%Y-%m-%d"),
+                                                    back_date=(datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d"))
+                    l.save()
+                    return redirect("/success")
+
+
+        else:
+            formset=ReaderForm()
+    return render(request,'mainapp/adduser.html',{'library_entry':library_entry,
+                                                    'formset':formset,
+                                                    'reader':reader,
+                                                    'title':'addreader',
+                                                    'msg':msg})
 
 
 
@@ -95,28 +125,25 @@ def inventory(request):
             liste=liste.filter(book=Book.objects.get(isbn=search_text))
         except Exception as e:
             ##lan oğlum böyle olmaz
+            #liste boşsa boştur orjinali aramadan önceki halini gösteririz
             pass
     return render(request,'mainapp/inventory.html', {'liste':liste})
 
 @login_required
-def lending(request,id):
-
-    library_entry=Library.objects.get(id=id)
+def lending(request,library_entry_id):
+    library_entry=Library.objects.get(id=library_entry_id)
     ### TODO: kullanıcı araması için bir inputtan bilgi al
     ### kullanıcıyı bul, yoksa yaratılacak formu göster
     if request.method == 'POST':
-        reader_id=request.user.username+'-'+request.POST.get("school_num")
-        try:
-            reader=Reader.objects.get(id=reader_id)
-        except Exception as e:
-            reader=create_reader()
-        l=Lending(unit=Unit.objects.get(id=request.user.username),
-                                        reader=reader,
-                                        library_entry=library_entry,
-                                        lend_date=datetime.now().strftime("%Y-%m-%d"),
-                                        back_date=(datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d"))
-        l.save()
-    return render(request,'mainapp/lending.html', {'library_entry':library_entry})
+        school_num=request.POST.get("school_num")
+        unit_id=request.user.username
+
+        url="/addreader/"+unit_id+"/"+school_num+"/"+library_entry_id
+        return redirect(url)
+
+    else:
+        return render(request,'mainapp/lending.html', {'library_entry':library_entry})
+
 
 
 def login(request):
@@ -168,3 +195,36 @@ def the_book(request,isbn):
         register_book(book,Unit.objects.get(id=request.user.username),description)
 
     return render(request,'mainapp/book.html', {'book':book})
+
+
+@login_required
+def report(request):
+    if request.method == 'POST':
+        selection=request.POST.get("selection")
+        response = HttpResponse(content_type='"text/csv"; charset="utf-8"; dialect="excel-tab"')
+        if selection=="books":
+            response['Content-Disposition'] = 'attachment; filename="books.csv"'
+            writer = csv.writer(response)
+            writer.writerow(['isbn', 'başlık', 'yazar'])
+            items = Book.objects.all().values_list('isbn', 'title', 'writer')
+
+        if selection=="readers":
+            response['Content-Disposition'] = 'attachment; filename="readers.csv"'
+            writer = csv.writer(response)
+            writer.writerow(['okul no', 'isim', 'sınıf', "şube"])
+            items = Reader.objects.filter(unit=Unit.objects.get(id=request.user.username)).values_list('school_num','name','grade','department')
+
+        if selection=="lendings":
+            response['Content-Disposition'] = 'attachment; filename="lendings.csv"'
+            writer = csv.writer(response)
+            writer.writerow(['Okul No','isim', 'Sınıf', 'Şube', 'isbn', 'Kitap Adı', 'Ödünç Alma Tarihi', 'Geri Getirme Tarihi'])
+            items = Lending.objects.filter(unit=Unit.objects.get(id=request.user.username)).values_list('reader__school_num', 'reader__name', 'reader__grade', 'reader__department',
+                                                        'library_entry__book__isbn','library_entry__book__title',
+                                                        'lend_date','back_date')
+
+        """for item in items:
+            writer.writerow(item)
+        return response"""
+        return render(request, "mainapp/report.html",{"items":items})
+    else:
+        return render(request, "mainapp/report.html")

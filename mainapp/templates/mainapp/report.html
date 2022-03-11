@@ -1,0 +1,27 @@
+{% extends './base.html' %}
+
+{% block content %}
+{{msg}}
+{%for item in items%}
+  {%for i in item%}
+    {{i}}&nbsp;
+  {%endfor%}
+  <br>
+
+{%endfor%}
+<form method="post">
+  {% csrf_token %}
+  <p>Lütfen rapor almak istediğiniz tabloyu seçiniz :</p>
+  <input type="radio" id="book" name="selection" value="books">
+  <label for="book">Kitaplar</label><br>
+  <input type="radio" id="reader" name="selection" value="readers">
+  <label for="reader">Okurlar</label><br>
+  <input type="radio" id="lending" name="selection" value="lendings">
+  <label for="lending">Ödünç verme</label>
+  <br>
+  <input type="submit" value="Seç">
+
+</form>
+
+
+{% endblock %}
