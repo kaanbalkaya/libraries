@@ -4,11 +4,12 @@
     <meta charset="utf-8">
   </head>
   <body>
-    <h3>Hoşgeldiniz, {{ user|default:'Misafir' }}, Kullanıcısı!</h3>
+    <h3>Hoşgeldiniz, {{ user.username|default:'Misafir' }}, Kullanıcısı!</h3>
     <a href="{% url 'mainapp:index' %}">Anasayfa</a>&nbsp;
 
     {% if user.is_authenticated %}
         <a href="{% url 'mainapp:inventory' %}">Ödünç Verme</a>&nbsp;
+        <a href="{% url 'mainapp:take_back' %}">İade İşlemleri</a>&nbsp;
         <a href="{% url 'mainapp:searchbook' %}">Kitap Ekleme</a>&nbsp;
         <a href="{% url 'mainapp:report' %}">Raporlar</a>&nbsp;
 
@@ -21,8 +22,6 @@
     {% if user.is_superuser %}
         <a href="{% url 'mainapp:units' %}">Kurumlar</a>&nbsp;
         <a href="{% url 'mainapp:libraries' %}">Kütüphaneler</a>&nbsp;
-        <a href="{% url 'mainapp:unitusers' %}">unitusers</a>&nbsp;
-        <a href="{% url 'mainapp:unitsadd' %}">unitsadd</a>&nbsp;
     {% endif %}
 
 

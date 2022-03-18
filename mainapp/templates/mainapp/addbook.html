@@ -1,10 +1,10 @@
 {% extends './base.html' %}
 
 {% block content %}
-{{msg}}
+<strong>{{msg}}</strong>
+<br>
 <form method="post">
   {% csrf_token %}
-  {{reader}}<br>
   {{formset.as_p}}
   Açıklama : <input type="text" id="description" name="description"><br>
 

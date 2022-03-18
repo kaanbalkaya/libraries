@@ -2,13 +2,18 @@
 
 {% block content %}
 {{msg}}
-{%for item in items%}
-  {%for i in item%}
-    {{i}}&nbsp;
-  {%endfor%}
-  <br>
+<table>
 
+{%for item in items%}
+<tr>
+  {%for i in item%}
+  <td>
+    {{i}}&nbsp;
+  </td>
+  {%endfor%}
+  </tr>
 {%endfor%}
+</table>
 <form method="post">
   {% csrf_token %}
   <p>Lütfen rapor almak istediğiniz tabloyu seçiniz :</p>

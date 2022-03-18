@@ -12,13 +12,11 @@
   <strong>Yazar     :</strong> {{library_entry.book.writer}}
   <br>
 
-  {%if reader%}
-  {{reader.as_p}}
-  {%else%}
-  Okul Numarası :
-  <input type="text" name="school_num">
-  <input type="submit" name="search" value="Ara">
-  {%endif%}
+
+  {{reader}}
+  <br>
+  <input type="submit" name="save" value="Kaydet">
+
 
 
 

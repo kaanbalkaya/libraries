@@ -20,18 +20,21 @@
           <h4>Yazar</h4>
       </td>
 </tr>
-{%for l in liste%}
+{%for z in liste%}
 
   <tr>
   <td>
-        <a href="/lending/{{l.id}}">{{l.book.isbn}}</a>
-
+    {%if z.on_lending < z.amount %}
+        <a href="/lending/{{z.id}}">{{z.book.isbn}}</a>
+    {%else%}
+        {{z.book.isbn}}
+    {%endif%}
   </td>
   <td>
-    {{l.book.title}}
+    {{z.book.title}}
   </td>
   <td>
-    {{l.book.writer}}
+    {{z.book.writer}}
   </td>
 
 </tr>

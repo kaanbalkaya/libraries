@@ -1,20 +1,20 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from .forms import UnitForm, BookForm, LibraryForm, ReaderForm, LendingForm, UserForm
 from .models import Book, Unit, Library, Reader, Lending
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
 from datetime import datetime, timedelta
 from django.core.exceptions import ObjectDoesNotExist
-
-from django.http import HttpResponse
 import csv
 
 def register_book(book, unit, description=""):
     try:
         library_entry=Library.objects.filter(unit=unit).get(book=book)
+        #kitap varsa sayısını bir artır
         library_entry.amount=library_entry.amount+1
     except Exception as e:
+        #ancak kitap yoksa yeni bir kayıt oluştur
         library_entry=Library(unit=unit,book=book)
 
     library_entry.description=description
@@ -22,12 +22,23 @@ def register_book(book, unit, description=""):
     return library_entry
 
 def index(request):
+    msg=""
     if request.method=="POST":
-        search=request.POST.get("search_text")
-        liste=Book.objects.filter(title__contains=search)
+        search_type=request.POST.get("search_type")
+        search_text=request.POST.get("search_text")
+        if search_type=="isbn":
+            liste=Book.objects.filter(isbn__contains=search_text)
+        elif search_type=="title":
+            liste=Book.objects.filter(title__contains=search_text)
+        elif search_type=="writer":
+            liste=Book.objects.filter(writer__contains=search_text)
+
     else:
         liste=Book.objects.all()
-    return render(request,'mainapp/index.html', {'liste':liste})
+    if not liste: #liste boşsa
+        msg="Aradığınız kayıt bulunamadı..."
+        liste=Book.objects.all()
+    return render(request,'mainapp/index.html', {'liste':liste, 'msg':msg})
 
 @login_required
 def success(request):
@@ -56,6 +67,7 @@ def addbook(request):
             book=formset.save()
             description=request.POST.get("description")
             register_book(book,Unit.objects.get(id=request.user.username), description)
+            return redirect("/success")
 
     else:
         msg="Aradığınız kitap bulunamadı, Eklemek için aşağıdaki formu doldurunuz."
@@ -64,54 +76,6 @@ def addbook(request):
 
 
 
-@login_required
-def addreader(request, unit_id, school_num, library_entry_id):
-    msg="Kayıt Giriniz."
-    id=unit_id+'-'+school_num
-    library_entry=Library.objects.get(id=library_entry_id)
-    reader=Reader()
-    try:
-        reader=Reader.objects.get(id=id)
-        l=Lending(unit=Unit.objects.get(id=request.user.username),
-                                        reader=reader,
-                                        library_entry=library_entry,
-                                        lend_date=datetime.now().strftime("%Y-%m-%d"),
-                                        back_date=(datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d"))
-        l.save()
-        return redirect("/success")
-    except ObjectDoesNotExist:
-        if request.method == 'POST':
-            formset = ReaderForm(request.POST)
-            if formset.is_valid():
-                #username ve kurum kodları aynı, aktif kullanıcının adı üzerinden
-                #ilgili kuruma ulaşabiliyoruz
-                #istisnası admin
-                if Reader.objects.filter(id=id).exists():
-                    msg="kullanıcı zaten kayıtlı"
-                    formset=ReaderForm()
-                else:
-                    reader=formset.save(commit=False)
-                    reader.unit=Unit.objects.get(id=unit_id)
-                    reader.id=id
-                    reader.school_num=school_num
-                    reader.books_lended=reader.books_lended+1
-                    reader.save()
-                    l=Lending(unit=Unit.objects.get(id=request.user.username),
-                                                    reader=reader,
-                                                    library_entry=library_entry,
-                                                    lend_date=datetime.now().strftime("%Y-%m-%d"),
-                                                    back_date=(datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d"))
-                    l.save()
-                    return redirect("/success")
-
-
-        else:
-            formset=ReaderForm()
-    return render(request,'mainapp/adduser.html',{'library_entry':library_entry,
-                                                    'formset':formset,
-                                                    'reader':reader,
-                                                    'title':'addreader',
-                                                    'msg':msg})
 
 
 
@@ -129,20 +93,118 @@ def inventory(request):
             pass
     return render(request,'mainapp/inventory.html', {'liste':liste})
 
+
+def which_lib(request, isbn):
+    try:
+        book=Book.objects.get(isbn=isbn)
+    except ObjectDoesNotExist:
+        return redirect("/index")
+    liste=Library.objects.filter(book=book)
+    units=[]
+    for l in liste:
+        units.append(l.unit)
+    return render(request,'mainapp/which_lib.html', {'book':book, 'units':units})
+
+@login_required
+def save_lending(request,school_num,library_entry_id):
+    unit_id=request.user.username
+    reader_id=unit_id+'-'+school_num
+
+    try:
+        reader=Reader.objects.get(id=reader_id)
+        library_entry=Library.objects.get(id=library_entry_id)
+        if request.method=='POST':
+            library_entry.on_lending+=1
+            library_entry.save()
+            reader.books_lended+=1
+            reader.save()
+            l=Lending(unit=Unit.objects.get(id=request.user.username),
+                                            reader=reader,
+                                            library_entry=library_entry,
+                                            lend_date=datetime.now().strftime("%Y-%m-%d"),
+                                            back_date=(datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d"))
+            l.save()
+            return redirect("/success")
+
+    except ObjectDoesNotExist:
+        url="/lending/"+library_entry_id
+        return redirect(url)
+
+    return render(request, 'mainapp/lending_summary.html',{'library_entry':library_entry,'reader':reader})
+
+
+@login_required
+def addreader(request, school_num, library_entry_id):
+    msg="Kayıt Giriniz."
+    formset=ReaderForm()
+    unit_id=request.user.username
+    reader_id=unit_id+'-'+school_num
+    library_entry=Library.objects.get(id=library_entry_id)
+    if request.method == 'POST':
+        formset = ReaderForm(request.POST)
+        if formset.is_valid():
+            if Reader.objects.filter(id=reader_id).exists():
+                msg="kullanıcı zaten kayıtlı"
+                formset=ReaderForm()
+            else:
+                reader=formset.save(commit=False)
+                reader.unit=Unit.objects.get(id=unit_id)
+                reader.id=reader_id
+                reader.school_num=school_num
+                reader.save()
+                url="/save_lending/"+school_num+"/"+library_entry_id
+                return redirect(url)
+
+    return render(request,'mainapp/adduser.html',{'library_entry':library_entry,
+                                                    'formset':formset,
+                                                    'title':'addreader',
+                                                    'msg':msg})
+
+
 @login_required
 def lending(request,library_entry_id):
     library_entry=Library.objects.get(id=library_entry_id)
+
+    if request.method == 'POST':
+        school_num=request.POST.get("school_num")
+        unit_id=request.user.username
+        reader_id=unit_id+'-'+school_num
+        try:
+            reader=Reader.objects.get(id=reader_id)
+            url="/save_lending/"+school_num+"/"+library_entry_id
+            return redirect(url)
+        except ObjectDoesNotExist:
+            url="/addreader/"+school_num+"/"+library_entry_id
+            return redirect(url)
+    else:
+        return render(request,'mainapp/lending.html', {'library_entry':library_entry})
+
+
+@login_required
+def take_back(request):
+    msg=""
+    unit_id=request.user.username
+    lendings=Lending.objects.filter(unit=Unit.objects.get(id=unit_id)).filter(returned=False)
     ### TODO: kullanıcı araması için bir inputtan bilgi al
     ### kullanıcıyı bul, yoksa yaratılacak formu göster
     if request.method == 'POST':
         school_num=request.POST.get("school_num")
-        unit_id=request.user.username
+        if school_num:
+            try:
+                lendings=Lending.objects.filter(reader=Reader.objects.filter(unit_id=unit_id).get(school_num=school_num))
+            except ObjectDoesNotExist:
+                msg="Aradığınız kayıt bulunamadı..."
+                pass
+        lending_id=request.POST.get("lending_id")
+        if lending_id:
 
-        url="/addreader/"+unit_id+"/"+school_num+"/"+library_entry_id
-        return redirect(url)
-
-    else:
-        return render(request,'mainapp/lending.html', {'library_entry':library_entry})
+            l=Lending.objects.get(id=lending_id)
+            l.returned=True
+            l.library_entry.on_lending-=1
+            l.library_entry.save()
+            l.save()
+            msg="iade alındı..."
+    return render(request,'mainapp/take_back.html', {'lendings':lendings, 'msg':msg})
 
 
 
@@ -195,36 +257,3 @@ def the_book(request,isbn):
         register_book(book,Unit.objects.get(id=request.user.username),description)
 
     return render(request,'mainapp/book.html', {'book':book})
-
-
-@login_required
-def report(request):
-    if request.method == 'POST':
-        selection=request.POST.get("selection")
-        response = HttpResponse(content_type='"text/csv"; charset="utf-8"; dialect="excel-tab"')
-        if selection=="books":
-            response['Content-Disposition'] = 'attachment; filename="books.csv"'
-            writer = csv.writer(response)
-            writer.writerow(['isbn', 'başlık', 'yazar'])
-            items = Book.objects.all().values_list('isbn', 'title', 'writer')
-
-        if selection=="readers":
-            response['Content-Disposition'] = 'attachment; filename="readers.csv"'
-            writer = csv.writer(response)
-            writer.writerow(['okul no', 'isim', 'sınıf', "şube"])
-            items = Reader.objects.filter(unit=Unit.objects.get(id=request.user.username)).values_list('school_num','name','grade','department')
-
-        if selection=="lendings":
-            response['Content-Disposition'] = 'attachment; filename="lendings.csv"'
-            writer = csv.writer(response)
-            writer.writerow(['Okul No','isim', 'Sınıf', 'Şube', 'isbn', 'Kitap Adı', 'Ödünç Alma Tarihi', 'Geri Getirme Tarihi'])
-            items = Lending.objects.filter(unit=Unit.objects.get(id=request.user.username)).values_list('reader__school_num', 'reader__name', 'reader__grade', 'reader__department',
-                                                        'library_entry__book__isbn','library_entry__book__title',
-                                                        'lend_date','back_date')
-
-        """for item in items:
-            writer.writerow(item)
-        return response"""
-        return render(request, "mainapp/report.html",{"items":items})
-    else:
-        return render(request, "mainapp/report.html")

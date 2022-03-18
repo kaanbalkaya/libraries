@@ -2,14 +2,23 @@
 
 {% block content %}
 <strong>Anasayfa</strong>
-{{nsg}}
+<br>
+<br>
+<span style="color:red">{{msg}}</span>
+<br>
+<br>
 <form method="post">
   {% csrf_token %}
-Kitap Adı :
+  <select name="search_type" id="search_type">
+      <option value="title">Kitap Adı</option>
+      <option value="isbn">ISBN</option>
+      <option value="writer">Yazar</option>
+    </select>
   <input type="text" name="search_text">
   <input type="submit" name="search" value="Ara">
+  <br><br>
 </form>
-<table frame ='void' border='1'>
+<table border='1'>
   <tr>
       <td>
           <h4>ISBN</h4>
@@ -25,7 +34,7 @@ Kitap Adı :
 
   <tr>
   <td>
-    {{l.isbn}}
+    <a href="/which_lib/{{l.isbn}}">{{l.isbn}}</a>
   </td>
   <td>
     {{l.title}}
@@ -37,4 +46,6 @@ Kitap Adı :
 </tr>
 {%endfor%}
 </table>
+
+
 {% endblock %}

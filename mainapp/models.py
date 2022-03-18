@@ -10,7 +10,7 @@ class Unit(models.Model):
     address=models.CharField(max_length=200)
     #user=models.OneToOneField(User, on_delete=models.CASCADE)
     def __str__(self):
-        return self.name
+        return self.name+" - "+self.address
 
 class Book(models.Model):
     isbn=models.CharField(verbose_name="isbn",max_length=13, primary_key=True)
@@ -27,6 +27,7 @@ class Library(models.Model):
     unit=models.ForeignKey(Unit, on_delete=models.CASCADE)
     book=models.ForeignKey(Book,on_delete=models.CASCADE)
     amount=models.IntegerField(default=1)
+    on_lending=models.IntegerField(default=0)
     description=models.CharField(max_length=100, default="")
 
     def __str__(self):
@@ -40,8 +41,8 @@ class Reader(models.Model):
     name=models.CharField(max_length=50)
     grade=models.IntegerField()
     department=models.CharField(max_length=5)
-    books_lended=models.IntegerField(default=0)
-
+    books_lended=models.IntegerField(default=1)
+    books_on=models.IntegerField(default=1)
     def __str__(self):
         return self.school_num +" - "+self.name
 
@@ -55,4 +56,4 @@ class Lending(models.Model):
     returned=models.BooleanField(default=False)
 
     def __str__(self):
-        return self.reader.__str__() +"-"+self.book.__str__()
+        return self.reader.__str__() +"-"+self.library_entry.book.__str__()

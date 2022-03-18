@@ -1,0 +1,45 @@
+{% extends './base.html' %}
+
+{% block content %}
+<strong>Bulunan Kütüphaneler</strong>
+{{nsg}}
+<form method="post">
+  {% csrf_token %}
+</form>
+<table frame ='void' border='1'>
+  <tr>
+      <td>
+          <h4>ISBN</h4>
+      </td>
+      <td>
+          <h4>Kitap Adı</h4>
+      </td>
+      <td>
+          <h4>Yazar</h4>
+      </td>
+      <td>
+          <h4>Kütphaneler</h4>
+      </td>
+</tr>
+
+
+  <tr>
+  <td>
+    {{book.isbn}}
+  </td>
+  <td>
+    {{book.title}}
+  </td>
+  <td>
+    {{book.writer}}
+  </td>
+  <td>
+    {%for unit in units%}
+    {{unit}}<br>
+    {%endfor%}
+  </td>
+
+</tr>
+
+</table>
+{% endblock %}
