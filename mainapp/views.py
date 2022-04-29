@@ -23,22 +23,46 @@ def register_book(book, unit, description=""):
 
 def index(request):
     msg=""
+    units=Unit.objects.all()
+    liste=None
+    lib_set=None
     if request.method=="POST":
         search_type=request.POST.get("search_type")
         search_text=request.POST.get("search_text")
-        if search_type=="isbn":
-            liste=Book.objects.filter(isbn__contains=search_text)
-        elif search_type=="title":
-            liste=Book.objects.filter(title__contains=search_text)
-        elif search_type=="writer":
-            liste=Book.objects.filter(writer__contains=search_text)
+        which_unit=request.POST.get("which_unit")
+
+        if which_unit=="all" and search_text!="":
+            if search_type=="isbn":
+                liste=Book.objects.filter(isbn__contains=search_text)
+            elif search_type=="title":
+                liste=Book.objects.filter(title__contains=search_text)
+            elif search_type=="writer":
+                liste=Book.objects.filter(writer__contains=search_text)
+        elif which_unit=="all" and search_text=="":
+            msg="Ne arıyorsunuz?"
+            liste=Book.objects.all()
+        elif which_unit!="all" and search_text!="":
+            the_library=Library.objects.filter(unit=Unit.objects.get(id=which_unit))
+            book_list=None
+
+            if search_type=="isbn":
+                book_list=list(Book.objects.filter(isbn__contains=search_text))
+            elif search_type=="title":
+                book_list=list(Book.objects.filter(title__contains=search_text))
+            elif search_type=="writer":
+                book_list=list(Book.objects.filter(writer__contains=search_text))
+            lib_set=the_library.filter(book__in = book_list)
+        elif which_unit!="all" and search_text=="":
+            the_library=Library.objects.filter(unit=Unit.objects.get(id=which_unit))
+            msg=str(which_unit)+" kütüphanesinde ne arıyorsunuz? "
+            lib_set=the_library.all()
+        else:
+            liste=Book.objects.all()
 
     else:
         liste=Book.objects.all()
-    if not liste: #liste boşsa
-        msg="Aradığınız kayıt bulunamadı..."
-        liste=Book.objects.all()
-    return render(request,'mainapp/index.html', {'liste':liste, 'msg':msg})
+
+    return render(request,'mainapp/index.html', {'liste':liste, 'msg':msg, 'units':units, 'lib_set':lib_set})
 
 @login_required
 def success(request):
@@ -83,6 +107,7 @@ def addbook(request):
 def inventory(request):
     ##kitapları kütüphane girişlerinden süzüp getir
     liste=Library.objects.filter(unit=Unit.objects.get(id=request.user.username))
+
     if request.method=="POST":
         search_text=request.POST.get("search_text")
         try:
@@ -255,5 +280,9 @@ def the_book(request,isbn):
     if request.method == 'POST':
         description=request.POST.get("description")
         register_book(book,Unit.objects.get(id=request.user.username),description)
-
+        return redirect("/success")
     return render(request,'mainapp/book.html', {'book':book})
+
+
+def error_404_view(request, exception):
+    return render(request,'mainapp/error_404.html', {"name": "ThePythonDjango.com"})

@@ -22,3 +22,4 @@ urlpatterns = [
     path('',include(mainapp_urls)),
     path("accounts/", include("django.contrib.auth.urls")),
 ]
+handler404 = 'mainapp.views.error_404_view'

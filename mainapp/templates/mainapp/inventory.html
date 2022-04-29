@@ -19,6 +19,12 @@
       <td>
           <h4>Yazar</h4>
       </td>
+      <td>
+          <h4>Ödünçtekiler</h4>
+      </td>
+      <td>
+          <h4>Toplam</h4>
+      </td>
 </tr>
 {%for z in liste%}
 
@@ -36,7 +42,12 @@
   <td>
     {{z.book.writer}}
   </td>
-
+  <td>
+    {{ z.on_lending }}
+  </td>
+  <td>
+    {{ z.amount }}
+  </td>
 </tr>
 {%endfor%}
 </table>

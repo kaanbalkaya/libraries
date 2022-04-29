@@ -19,7 +19,7 @@ class Book(models.Model):
     genre=models.CharField(verbose_name="tür",max_length=20)
     publisher=models.CharField(verbose_name="yayıncı",max_length=20)
     publish_year=models.IntegerField(verbose_name="yayın yılı",)
-
+    pages=models.IntegerField(blank=True, verbose_name="Sayfa Sayısı")
     def __str__(self):
         return self.isbn +"-"+self.title
 
@@ -38,13 +38,13 @@ class Reader(models.Model):
     unit=models.ForeignKey(Unit, on_delete=models.CASCADE)
     school_num=models.CharField(max_length=10, verbose_name="Okul Numarası")
     id=models.CharField(max_length=20, primary_key=True)
-    name=models.CharField(max_length=50)
-    grade=models.IntegerField()
-    department=models.CharField(max_length=5)
+    name=models.CharField(max_length=50, verbose_name="İsim")
+    grade=models.IntegerField(verbose_name='Sınıf')
+    department=models.CharField(max_length=5,verbose_name="Şube")
     books_lended=models.IntegerField(default=1)
     books_on=models.IntegerField(default=1)
     def __str__(self):
-        return self.school_num +" - "+self.name
+        return str(self.grade)+"/"+self.department+" - "+self.school_num +" "+self.name
 
 
 class Lending(models.Model):

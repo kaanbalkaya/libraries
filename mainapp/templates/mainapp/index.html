@@ -14,6 +14,13 @@
       <option value="isbn">ISBN</option>
       <option value="writer">Yazar</option>
     </select>
+    <select name="which_unit" id="which_unit">
+      <option value="all">Tüm Kütüphaneler</option>
+      {%for u in units%}
+        <option value="{{u.id}}">{{u}}</option>
+      {% endfor %}
+      </select>
+      <br><br>
   <input type="text" name="search_text">
   <input type="submit" name="search" value="Ara">
   <br><br>
@@ -30,21 +37,36 @@
           <h4>Yazar</h4>
       </td>
 </tr>
-{%for l in liste%}
 
-  <tr>
-  <td>
-    <a href="/which_lib/{{l.isbn}}">{{l.isbn}}</a>
-  </td>
-  <td>
-    {{l.title}}
-  </td>
-  <td>
-    {{l.writer}}
-  </td>
-
-</tr>
-{%endfor%}
+{% if liste %}
+  {%for l in liste%}
+    <tr>
+      <td>
+        <a href="/which_lib/{{l.isbn}}">{{l.isbn}}</a>
+      </td>
+      <td>
+        {{l.title}}
+      </td>
+      <td>
+        {{l.writer}}
+      </td>
+    </tr>
+  {%endfor%}
+{% else %}
+  {%for l in lib_set%}
+    <tr>
+      <td>
+        <a href="/which_lib/{{l.book.isbn}}">{{l.book.isbn}}</a>
+      </td>
+      <td>
+        {{l.book.title}}
+      </td>
+      <td>
+        {{l.book.writer}}
+      </td>
+    </tr>
+  {%endfor%}
+  {%endif%}
 </table>
 
 
