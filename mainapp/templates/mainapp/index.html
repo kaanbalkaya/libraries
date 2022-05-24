@@ -2,11 +2,11 @@
 
 {% block content %}
 <strong>Anasayfa</strong>
-<br>
+
 <br>
 <span style="color:red">{{msg}}</span>
 <br>
-<br>
+
 <form method="post">
   {% csrf_token %}
   <select name="search_type" id="search_type">
@@ -20,10 +20,10 @@
         <option value="{{u.id}}">{{u}}</option>
       {% endfor %}
       </select>
-      <br><br>
+      <br>
   <input type="text" name="search_text">
   <input type="submit" name="search" value="Ara">
-  <br><br>
+  <br>
 </form>
 <table border='1'>
   <tr>
