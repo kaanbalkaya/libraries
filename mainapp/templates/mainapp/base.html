@@ -1,39 +1,80 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="tr" dir="ltr">
   <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css", href="{% static 'css/main.css'%}">
   </head>
   <body >
-    <h3>Hoşgeldiniz, {{ user.username|default:'Misafir' }}, Kullanıcısı!</h3>
-    <a href="{% url 'mainapp:index' %}">Anasayfa</a>&nbsp;
+    <div class="content">
 
-    {% if user.is_authenticated %}
-        <a href="{% url 'mainapp:inventory' %}">Ödünç Verme</a>&nbsp;
-        <a href="{% url 'mainapp:take_back' %}">İade İşlemleri</a>&nbsp;
-        <a href="{% url 'mainapp:searchbook' %}">Kitap Ekleme</a>&nbsp;
-        <a href="{% url 'mainapp:report' %}">Raporlar</a>&nbsp;
+        <div class="header">
 
-    {% endif %}
+          <div class="header-child">
 
-    {% if user.is_staff %}
-        <a href="{% url 'mainapp:users' %}">((Kullanıcı Ekleme))</a>&nbsp;
-    {% endif %}
+            <img class="logo" src="{% static 'images/logo.png'%}" alt="logo">
 
-    {% if user.is_superuser %}
-        <a href="{% url 'mainapp:units' %}">Kurumlar</a>&nbsp;
-        <a href="{% url 'mainapp:libraries' %}">Kütüphaneler</a>&nbsp;
-    {% endif %}
+          </div>
+
+          <div class="header-child" >
+            <img class="atam" src="{% static 'images/ataturk.png'%}" alt="Atam">
+          </div>
+
+        </div>
+      
+        <hr>
+        <div class="greeting">
+          {% if user.is_superuser %}
+          <h3>Hoşgeldiniz, Yönetici!</h3>
+          {% else %}
+          {% if user.is_authenticated %}
+          <h3>Hoşgeldiniz, {{ user.username|default:'Misafir' }} Kullanıcısı!</h3>
+          {% else %}
+          <h3>Hoşgeldiniz!</h3>
+          {% endif %}
+          {% endif %}
+        </div>
+
+        <nav>
+          <a href="{% url 'mainapp:index' %}">Anasayfa</a>&nbsp;
+
+          {% if user.is_authenticated %}
+              <a href="{% url 'mainapp:inventory' %}">Ödünç Verme</a>&nbsp;
+              <a href="{% url 'mainapp:take_back' %}">İade İşlemleri</a>&nbsp;
+              <a href="{% url 'mainapp:searchbook' %}">Kitap Ekleme</a>&nbsp;
+              <a href="{% url 'mainapp:report' %}">Raporlar</a>&nbsp;
+          {% endif %}
+
+          {% if user.is_staff %}
+              <a href="{% url 'mainapp:users' %}">((Kullanıcı Ekleme))</a>&nbsp;
+          {% endif %}
+
+          {% if user.is_superuser %}
+              <a href="{% url 'mainapp:units' %}">Kurumlar</a>&nbsp;
+              <a href="{% url 'mainapp:libraries' %}">Kütüphaneler</a>&nbsp;
+          {% endif %}
 
 
-    {% if user.is_authenticated %}
-        <a href="{% url 'logout' %}">Oturumu kapat</a>
-    {% else %}
-        <a href="{% url 'login' %}">Oturum aç</a>
-    {% endif %}
-    <br>
-    <br>
+          {% if user.is_authenticated %}
+              <a href="{% url 'logout' %}">Oturumu kapat</a>
+          {% else %}
+              <a href="{% url 'login' %}">Oturum aç</a>
+          {% endif %}
+        </nav>
+        <hr>
+      <br>
 
-    {%block content%}
-    {%endblock content%}
+
+      {%block content%}
+      {%endblock content%}
+      <hr>
+      <footer>
+        <p>
+          &copy - 2022
+        </p>
+
+
+      </footer>
+  </div>
   </body>
 </html>
