@@ -5,13 +5,14 @@
 <br>
 <form method="post">
   {% csrf_token %}
-   <table>
+  <table>
   {{formset}}
   <tr>
-    <td><strong>Açıklama : </strong></td>
+    <td><strong> Açıklama : </strong></td>
     <td><input type="text" id="description" name="description"><br></td>
   </tr>
   </table>
+
   <input type="submit" value="Kaydet">
 
 </form>

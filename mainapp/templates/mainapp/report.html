@@ -1,27 +1,10 @@
 {% extends './base.html' %}
 
 {% block content %}
-{{msg}}
+<<strong>Raporlar</strong>
 
-<ol>
+<p> <strong>{{msg}}</strong></p>
 
-{%for item in items%}
-
-<li>
-  <table border="1">
-      <tr>
-
-  {%for i in item%}
-  <td>
-    {{i}}&nbsp;
-  </td>
-  {%endfor%}
-  </tr>
-  </table>
-</li>
-{%endfor%}
-
-</ol>
 
 <form method="post">
   {% csrf_token %}
@@ -33,9 +16,34 @@
   <input type="radio" id="lending" name="selection" value="lendings">
   <label for="lending">Ödünç verme</label>
   <br>
+  <br>
   <input type="submit" value="Seç">
 
 </form>
+ <br>
+
+
+<table class="books-table">
+  <tr>
+    {%for h in header%}
+    <th>
+        {{h}}
+    </th>
+    {%endfor%}
+  </tr>
+  {%for item in liste%}
+    <tr>
+      {%for i in item%}
+        <td>
+          {{i}}
+        </td>
+      {%endfor%}
+    </tr>
+  {%endfor%}
+  </table>
+
+
+
 
 
 {% endblock %}

@@ -7,6 +7,7 @@ from django.shortcuts import redirect
 from datetime import datetime, timedelta
 from django.core.exceptions import ObjectDoesNotExist
 import csv
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 def register_book(book, unit, description=""):
     try:
@@ -39,7 +40,7 @@ def index(request):
             elif search_type=="writer":
                 liste=Book.objects.filter(writer__contains=search_text)
         elif which_unit=="all" and search_text=="":
-            msg="Ne arıyorsunuz?"
+            #msg="Ne arıyorsunuz?"
             liste=Book.objects.all()
         elif which_unit!="all" and search_text!="":
             the_library=Library.objects.filter(unit=Unit.objects.get(id=which_unit))
@@ -54,7 +55,7 @@ def index(request):
             lib_set=the_library.filter(book__in = book_list)
         elif which_unit!="all" and search_text=="":
             the_library=Library.objects.filter(unit=Unit.objects.get(id=which_unit))
-            msg=str(which_unit)+" kütüphanesinde ne arıyorsunuz? "
+            #msg=str(which_unit)+" kütüphanesinde ne arıyorsunuz? "
             lib_set=the_library.all()
         else:
             liste=Book.objects.all()
@@ -62,6 +63,11 @@ def index(request):
     else:
         liste=Book.objects.all()
 
+    if liste!=None:
+        paginator=Paginator(liste,25)
+        page=request.GET.get('page')
+        liste=paginator.get_page(page)
+    
     return render(request,'mainapp/index.html', {'liste':liste, 'msg':msg, 'units':units, 'lib_set':lib_set})
 
 @login_required
@@ -80,6 +86,10 @@ def searchbook(request):
             return redirect("/addbook")
     else:
         liste=Book.objects.all()
+    paginator=Paginator(liste,25)
+    page=request.GET.get('page')
+    liste=paginator.get_page(page)
+
     return render(request,'mainapp/searchbook.html',{'liste':liste, 'title':'Kitap Ara', 'msg':msg})
 
 @login_required
@@ -116,6 +126,11 @@ def inventory(request):
             ##lan oğlum böyle olmaz
             #liste boşsa boştur orjinali aramadan önceki halini gösteririz
             pass
+
+    paginator=Paginator(liste,25)
+    page=request.GET.get('page')
+    liste=paginator.get_page(page)
+
     return render(request,'mainapp/inventory.html', {'liste':liste})
 
 
@@ -142,6 +157,7 @@ def save_lending(request,school_num,library_entry_id):
             library_entry.on_lending+=1
             library_entry.save()
             reader.books_lended+=1
+            reader.books_on+=1
             reader.save()
             l=Lending(unit=Unit.objects.get(id=request.user.username),
                                             reader=reader,
@@ -227,7 +243,10 @@ def take_back(request):
             l.returned=True
             l.library_entry.on_lending-=1
             l.library_entry.save()
+            l.reader.books_on-=1
+            l.reader.save()
             l.save()
+
             msg="iade alındı..."
     return render(request,'mainapp/take_back.html', {'lendings':lendings, 'msg':msg})
 
@@ -260,7 +279,7 @@ def units(request):
         formset=UnitForm()
     return render(request,'mainapp/formset.html',{'formset':formset, 'msg':msg})
 
-@user_passes_test(lambda user:user.is_superuser)
+"""@user_passes_test(lambda user:user.is_superuser)
 def libraries(request):
     msg="Kayıt Giriniz."
     if request.method == 'POST':
@@ -272,7 +291,7 @@ def libraries(request):
     else:
         formset=LibraryForm()
     return render(request,'mainapp/formset.html',{'formset':formset,'title':'libraries', 'msg':msg})
-
+"""
 
 @login_required
 def the_book(request,isbn):

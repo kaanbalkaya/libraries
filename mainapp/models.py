@@ -41,8 +41,8 @@ class Reader(models.Model):
     name=models.CharField(max_length=50, verbose_name="İsim")
     grade=models.IntegerField(verbose_name='Sınıf')
     department=models.CharField(max_length=5,verbose_name="Şube")
-    books_lended=models.IntegerField(default=1)
-    books_on=models.IntegerField(default=1)
+    books_lended=models.IntegerField(default=0)
+    books_on=models.IntegerField(default=0)
     def __str__(self):
         return str(self.grade)+"/"+self.department+" - "+self.school_num +" "+self.name
 

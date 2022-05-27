@@ -11,20 +11,20 @@ Eklemek istediğiniz kitabı "isbn" ile aratınız<br>
   <input type="submit" name="search" value="Ara">
 </form>
 <form method="post">
-  <table border='1'>
+  <table class="books-table">
     <tr>
-        <td>
+        <th>
             <h4>ISBN</h4>
-        </td>
-        <td>
+        </th>
+        <th>
             <h4>Kitap Adı</h4>
-        </td>
-        <td>
+        </th>
+        <th>
             <h4>Yazar</h4>
-        </td>
-        <td>
+        </th>
+        <th>
             <h4> </h4>
-        </td>
+        </th>
   </tr>
   {%for l in liste%}
 
@@ -42,4 +42,12 @@ Eklemek istediğiniz kitabı "isbn" ile aratınız<br>
   {%endfor%}
   </table>
 </form>
+<div class="page-selectors">
+  {% if liste.has_previous %}
+    <a href="?page={{ liste.previous_page_number}}">Önceki</a>
+  {% endif %}
+  {% if liste.has_next %}
+    <a href="?page={{ liste.next_page_number}}">Sonraki</a>
+  {% endif %}
+</div>
 {% endblock %}

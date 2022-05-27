@@ -1,10 +1,13 @@
 {% extends './base.html' %}
-
+{% load static %}
 {% block content %}
+  {% csrf_token %}
 <strong>Anasayfa</strong>
-
 <br>
+<br>
+
 <span style="color:red">{{msg}}</span>
+
 <br>
 
 <form method="post">
@@ -20,22 +23,23 @@
         <option value="{{u.id}}">{{u}}</option>
       {% endfor %}
       </select>
-      <br>
+
   <input type="text" name="search_text">
   <input type="submit" name="search" value="Ara">
   <br>
+  <br>
 </form>
-<table border='1'>
+<table class="books-table">
   <tr>
-      <td>
+      <th>
           <h4>ISBN</h4>
-      </td>
-      <td>
+      </th>
+      <th>
           <h4>Kitap Adı</h4>
-      </td>
-      <td>
+      </th>
+      <th>
           <h4>Yazar</h4>
-      </td>
+      </th>
 </tr>
 
 {% if liste %}
@@ -68,6 +72,13 @@
   {%endfor%}
   {%endif%}
 </table>
-
+<div class="page-selectors">
+  {% if liste.has_previous %}
+    <a href="?page={{ liste.previous_page_number}}">Önceki</a>
+  {% endif %}
+  {% if liste.has_next %}
+    <a href="?page={{ liste.next_page_number}}">Sonraki</a>
+  {% endif %}
+</div>
 
 {% endblock %}

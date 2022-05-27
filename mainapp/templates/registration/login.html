@@ -6,7 +6,10 @@
 
     <form method="post">
       {% csrf_token %}
-      {{ form.as_p }}
+      <table>
+        {{form}}  
+      </table>
+
       <input type="submit" value="Login">
     </form>
 
