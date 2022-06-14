@@ -1,0 +1,83 @@
+{% extends './base.html' %}
+
+{% block content %}
+<strong>Raporlar</strong>
+
+<p> <strong>{{msg}}</strong></p>
+
+
+<form method="post">
+  {% csrf_token %}
+  <select name="which_unit" id="which_unit">
+    <option value="all">Tüm Kütüphaneler</option>
+    {%for u in units%}
+      <option value="{{u.id}}">{{u}}</option>
+    {% endfor %}
+    </select>
+
+
+  <p>Lütfen rapor almak istediğiniz tabloyu seçiniz :</p>
+  <input type="radio" id="book" name="selection" value="books">
+  <label for="book">Kitaplar</label><br>
+  <input type="radio" id="reader" name="selection" value="readers">
+  <label for="reader">Okurlar</label><br>
+  <input type="radio" id="lending" name="selection" value="lendings">
+  <label for="lending">Ödünç verme</label>
+  <br>
+  <br>
+  <input type="submit" value="Seç">
+
+</form>
+ <br>
+ <table class="books-table">
+  <tr>
+    {%for h in header%}
+    <th>
+        {{h}}
+    </th>
+    {%endfor%}
+  </tr>
+
+  {% if selection == "readers"%}
+    {%for item in liste%}
+        <tr>
+          <td>
+            <a href="/reader_detail/{{item.id}}">
+            {{item.school_num}}
+            </a>
+          </td>
+          <td>
+            {{item.name}}
+          </td>
+          <td>
+            {{item.grade}}
+          </td>
+          <td>
+            {{item.department}}
+          </td>
+
+            <td>
+              <a href="/reader_detail/{{item.id}}">
+                {{item.books_lended}}
+              </a>
+            </td>
+        </tr>
+      {%endfor%}
+    {% else %}
+     {%for item in liste%}
+       <tr>
+         {%for i in item%}
+           <td>
+             {{i}}
+           </td>
+         {%endfor%}
+       </tr>
+     {%endfor%}
+    {% endif %}
+
+  </table>
+
+
+
+
+{% endblock %}

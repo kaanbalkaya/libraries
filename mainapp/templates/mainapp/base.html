@@ -13,9 +13,9 @@
         <div class="header">
 
           <div class="header-child">
-
-            <img class="logo" src="{% static 'images/logo.png'%}" alt="logo">
-
+            <a href="http://www.meb.gov.tr/" target="_self" >
+              <img class="logo" src="{% static 'images/logo.png'%}" alt="logo">
+            </a>
           </div>
 
           <div class="header-child" >
@@ -40,9 +40,7 @@
         <nav>
           <a href="{% url 'mainapp:index' %}">Anasayfa</a>&nbsp;
           {% if user.is_superuser %}
-              <a href="{% url 'mainapp:users' %}">((Kullanıcı Ekleme))</a>&nbsp;
-              <a href="{% url 'mainapp:units' %}">Kurum Ekleme</a>&nbsp;
-              <a href="{% url 'mainapp:report' %}">Raporlar</a>&nbsp;
+              <a href="{% url 'mainapp:admin_report' %}">Raporlar</a>&nbsp;
           {% else %}
             {% if user.is_authenticated %}
                 <a href="{% url 'mainapp:inventory' %}">Ödünç Verme</a>&nbsp;
@@ -61,9 +59,12 @@
         <hr>
       <br>
 
-
       {%block content%}
       {%endblock content%}
+      <p class="geri">
+        <a  href="#" onclick="history.go(-1)">Önceki Sayfa</a>
+      </p>
+      </div>
       <hr>
       <footer>
         <p>
@@ -72,6 +73,6 @@
 
 
       </footer>
-  </div>
+
   </body>
 </html>

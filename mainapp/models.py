@@ -9,8 +9,19 @@ class Unit(models.Model):
     name=models.CharField(max_length=100)
     address=models.CharField(max_length=200)
     #user=models.OneToOneField(User, on_delete=models.CASCADE)
+    #district=CharField(max_length=20)
+    #provincy=CharField(max_length=20)
+    #type=models.ForeignKey(UnitType, on_delete=models.CASCADE)
     def __str__(self):
         return self.name+" - "+self.address
+
+'''
+class UnitType(models.Model):
+    id=models.CharField(max_length=8, primary_key=True)
+    name=models.CharField(max_length=50)
+    __str__(self):
+        return self.name
+'''
 
 class Book(models.Model):
     isbn=models.CharField(verbose_name="isbn",max_length=13, primary_key=True)

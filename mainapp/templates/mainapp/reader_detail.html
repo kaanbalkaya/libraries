@@ -1,0 +1,39 @@
+{% extends './base.html' %}
+
+{% block content %}
+
+<p><strong>{{reader.unit}} - {{reader}}</strong></p>
+
+{% if liste %}
+<p><strong>Okuduğu Kitaplar</strong></p>
+
+
+<table class="books-table">
+  <tr>
+    {%for h in header%}
+      <th>
+          <h4>{{h}}</h4>
+      </th>
+    {%endfor%}
+  </tr>
+
+
+  {%for l in liste%}
+    <tr>
+      <td>
+        <a href="/which_lib/{{l.library_entry__book__isbn}}">{{l.library_entry__book__isbn}}</a>
+      </td>
+      <td>
+        {{l.library_entry__book__title}}
+      </td>
+      <td>
+        {{l.lend_date}}
+      </td>
+      <td>
+        {{l.back_date}}
+      </td>
+    </tr>
+  {%endfor%}
+{% endif %}
+</table>
+{% endblock %}

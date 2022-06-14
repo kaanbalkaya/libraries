@@ -20,7 +20,9 @@ urlpatterns = [
     path("lending/<str:library_entry_id>", views.lending, name="lending"),
     path("success/",views.success,name="success"),
     path("report/", reports.report,name="report"),
+    path("admin_report/", reports.admimistrative_report,name="admin_report"),
     path("which_lib/<str:isbn>",views.which_lib, name="which_lib"),
+    path("reader_detail/<str:id>",reports.reader_detail, name="reader_detail"),
     path("take_back",views.take_back,name="take_back"),
 
 ]

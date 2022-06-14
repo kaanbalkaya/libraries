@@ -8,7 +8,12 @@ from datetime import datetime, timedelta
 from django.core.exceptions import ObjectDoesNotExist
 import csv
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from random import shuffle
 
+
+
+
+@login_required
 def register_book(book, unit, description=""):
     try:
         library_entry=Library.objects.filter(unit=unit).get(book=book)
@@ -21,6 +26,8 @@ def register_book(book, unit, description=""):
     library_entry.description=description
     library_entry.save()
     return library_entry
+
+
 
 def index(request):
     msg=""
@@ -63,11 +70,17 @@ def index(request):
     else:
         liste=Book.objects.all()
 
+    '''
+    liste=list(liste)
+    if not request.GET.get("page"):
+        shuffle(liste)
+    '''
     if liste!=None:
         paginator=Paginator(liste,25)
         page=request.GET.get('page')
         liste=paginator.get_page(page)
-    
+
+
     return render(request,'mainapp/index.html', {'liste':liste, 'msg':msg, 'units':units, 'lib_set':lib_set})
 
 @login_required
@@ -107,10 +120,6 @@ def addbook(request):
         msg="Aradığınız kitap bulunamadı, Eklemek için aşağıdaki formu doldurunuz."
         formset=BookForm()
     return render(request,'mainapp/addbook.html', {'formset':formset, 'msg':msg})
-
-
-
-
 
 
 @login_required
@@ -240,6 +249,7 @@ def take_back(request):
         if lending_id:
 
             l=Lending.objects.get(id=lending_id)
+            l.back_date=datetime.now().strftime("%Y-%m-%d")
             l.returned=True
             l.library_entry.on_lending-=1
             l.library_entry.save()

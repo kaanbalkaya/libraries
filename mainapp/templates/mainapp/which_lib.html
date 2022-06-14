@@ -18,6 +18,12 @@
           <h4>Yazar</h4>
       </th>
       <th>
+          <h4>Tür</h4>
+      </th>
+      <th>
+          <h4>Sayfa Sayısı</h4>
+      </th>
+      <th>
           <h4>Kütüphaneler</h4>
       </th>
 </tr>
@@ -32,6 +38,13 @@
   </td>
   <td>
     {{book.writer}}
+  </td>
+  <td>
+    {{book.genre}}
+  </td>
+
+  <td>
+    {{book.pages}}
   </td>
   <td>
     {%for unit in units%}
