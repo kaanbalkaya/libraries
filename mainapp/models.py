@@ -10,7 +10,7 @@ class Unit(models.Model):
     address=models.CharField(max_length=200)
     #user=models.OneToOneField(User, on_delete=models.CASCADE)
     #district=CharField(max_length=20)
-    #provincy=CharField(max_length=20)
+    provincy=models.CharField(max_length=20)
     #type=models.ForeignKey(UnitType, on_delete=models.CASCADE)
     def __str__(self):
         return self.name+" - "+self.address

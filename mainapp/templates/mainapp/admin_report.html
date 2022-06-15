@@ -76,7 +76,14 @@
     {% endif %}
 
   </table>
-
+  <!--
+  {%if selection%}
+    <form method="post">
+        {% csrf_token %}
+        <input type="submit" name="download_report" value="Raporu İndir">
+    </form>
+  {%endif%}
+  -->  
 
 
 

@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
 from datetime import datetime, timedelta
 from django.core.exceptions import ObjectDoesNotExist
-import csv
+#import csv
 
 @user_passes_test(lambda user:user.is_superuser)
 def admimistrative_report(request):
@@ -19,27 +19,15 @@ def admimistrative_report(request):
 
         if which_unit=="all":
             selection=request.POST.get("selection")
-            response = HttpResponse(content_type='"text/csv"; charset="utf-8"; dialect="excel-tab"')
             if selection=="books":
-                response['Content-Disposition'] = 'attachment; filename="books.csv"'
-                writer = csv.writer(response)
-                writer.writerow(['ISBN', 'Kitap Adı', 'Yazar'])
                 liste=Library.objects.all().values_list('book__isbn', 'book__title','book__writer')
-                #liste = Book.objects.all().values_list('isbn', 'title', 'writer')
-
                 header=['ISBN', 'Kitap Adı', 'Yazar']
 
             if selection=="readers":
-                response['Content-Disposition'] = 'attachment; filename="readers.csv"'
-                writer = csv.writer(response)
-                writer.writerow(['okul no', 'isim', 'sınıf', "şube"])
                 liste = Reader.objects.all().order_by("-books_lended").values('id','school_num','name','grade','department','books_lended')
                 header=['Okul No', 'İsim', 'Sınıf', 'Şube', 'Ödünç Alınan Kitaplar']
 
             if selection=="lendings":
-                response['Content-Disposition'] = 'attachment; filename="lendings.csv"'
-                writer = csv.writer(response)
-                writer.writerow(['Okul No','İsim', 'Sınıf', 'Şube', 'ISBN', 'Kitap Adı', 'Ödünç Alma Tarihi', 'Geri Getirme Tarihi', "İade Edildi Mi"])
                 lended_books = Lending.objects.all().values_list('reader__school_num', 'reader__name', 'reader__grade', 'reader__department',
                                                             'library_entry__book__isbn','library_entry__book__title',
                                                             'lend_date','back_date','returned')
@@ -57,27 +45,15 @@ def admimistrative_report(request):
 
         else:
             selection=request.POST.get("selection")
-            response = HttpResponse(content_type='"text/csv"; charset="utf-8"; dialect="excel-tab"')
             if selection=="books":
-                response['Content-Disposition'] = 'attachment; filename="books.csv"'
-                writer = csv.writer(response)
-                writer.writerow(['ISBN', 'Kitap Adı', 'Yazar'])
                 liste=Library.objects.filter(unit=Unit.objects.get(id=which_unit)).values_list('book__isbn', 'book__title','book__writer')
-                #liste = Book.objects.all().values_list('isbn', 'title', 'writer')
-
                 header=['ISBN', 'Kitap Adı', 'Yazar']
 
             if selection=="readers":
-                response['Content-Disposition'] = 'attachment; filename="readers.csv"'
-                writer = csv.writer(response)
-                writer.writerow(['okul no', 'isim', 'sınıf', "şube"])
                 liste = Reader.objects.filter(unit=Unit.objects.get(id=which_unit)).order_by("-books_lended").values('id','school_num','name','grade','department', 'books_lended')
                 header=['Okul No', 'İsim', 'Sınıf', 'Şube', 'Ödünç Alınan Kitaplar']
 
             if selection=="lendings":
-                response['Content-Disposition'] = 'attachment; filename="lendings.csv"'
-                writer = csv.writer(response)
-                writer.writerow(['Okul No','İsim', 'Sınıf', 'Şube', 'ISBN', 'Kitap Adı', 'Ödünç Alma Tarihi', 'Geri Getirme Tarihi', "İade Edildi Mi"])
                 lended_books = Lending.objects.filter(unit=Unit.objects.get(id=which_unit)).values_list('reader__school_num', 'reader__name', 'reader__grade', 'reader__department',
                                                             'library_entry__book__isbn','library_entry__book__title',
                                                             'lend_date','back_date','returned')
@@ -93,7 +69,16 @@ def admimistrative_report(request):
                         item_element.append("İade Edilmedi")
                     liste.append(item_element)
 
-
+        '''
+        if request.POST.get("download_report"):
+            response = HttpResponse(content_type='"text/csv"; charset="utf-8"; dialect="excel-tab"')
+            writer = csv.writer(response)
+            writer.writerow(header)
+            for l in liste:
+                writer.writerow(l)
+            response['Content-Disposition'] = 'attachment; filename="rapor.csv"'
+            return response
+        '''
         return render(request, "mainapp/admin_report.html",{"liste":liste, "header":header,  "units":units, "selection":selection})
     else:
         return render(request, "mainapp/admin_report.html",{"units":units})
@@ -110,26 +95,15 @@ def report(request):
 
     if request.method == 'POST':
         selection=request.POST.get("selection")
-        response = HttpResponse(content_type='"text/csv"; charset="utf-8"; dialect="excel-tab"')
         if selection=="books":
-            response['Content-Disposition'] = 'attachment; filename="books.csv"'
-            writer = csv.writer(response)
-            writer.writerow(['ISBN', 'Kitap Adı', 'Yazar'])
             liste=Library.objects.filter(unit=Unit.objects.get(id=request.user.username)).values_list('book__isbn', 'book__title','book__writer')
-            #liste = Book.objects.all().values_list('isbn', 'title', 'writer')
             header=['ISBN', 'Kitap Adı', 'Yazar']
 
         if selection=="readers":
-            response['Content-Disposition'] = 'attachment; filename="readers.csv"'
-            writer = csv.writer(response)
-            writer.writerow(['okul no', 'isim', 'sınıf', "şube"])
             liste = Reader.objects.filter(unit=unit).order_by("-books_lended").values('id','school_num','name','grade','department', "books_lended")
             header=['Okul No', 'İsim', 'Sınıf', "Şube", "Ödünç Alınan Kitaplar"]
 
         if selection=="lendings":
-            response['Content-Disposition'] = 'attachment; filename="lendings.csv"'
-            writer = csv.writer(response)
-            writer.writerow(['Okul No','İsim', 'Sınıf', 'Şube', 'ISBN', 'Kitap Adı', 'Ödünç Alma Tarihi', 'Geri Getirme Tarihi', "İade Edildi Mi"])
             lended_books = Lending.objects.filter(unit=Unit.objects.get(id=request.user.username)).values_list('reader__school_num', 'reader__name', 'reader__grade', 'reader__department',
                                                         'library_entry__book__isbn','library_entry__book__title',
                                                         'lend_date','back_date','returned')
@@ -152,6 +126,16 @@ def report(request):
             msg=str(unit)+", kurumunuzda "+str(count)+" adet kayıt bulundu"
         else:
             msg=str(unit)+", kurumunuzda hiç kayıt bulunamadı..."
+        '''
+        if request.POST.get("download_report"):
+            response = HttpResponse(content_type='"text/csv"; charset="utf-8"; dialect="excel-tab"')
+            writer = csv.writer(response)
+            writer.writerow(header)
+            for l in liste:
+                writer.writerow(l)
+            response['Content-Disposition'] = 'attachment; filename="rapor.csv"'
+            return response
+        '''
 
         return render(request, "mainapp/report.html",{"liste":liste, "header":header, "msg":msg,  "selection":selection})
     else:
