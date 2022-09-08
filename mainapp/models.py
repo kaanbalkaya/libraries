@@ -9,19 +9,8 @@ class Unit(models.Model):
     name=models.CharField(max_length=100)
     address=models.CharField(max_length=200)
     #user=models.OneToOneField(User, on_delete=models.CASCADE)
-    #district=CharField(max_length=20)
-    provincy=models.CharField(max_length=20)
-    #type=models.ForeignKey(UnitType, on_delete=models.CASCADE)
     def __str__(self):
         return self.name+" - "+self.address
-
-'''
-class UnitType(models.Model):
-    id=models.CharField(max_length=8, primary_key=True)
-    name=models.CharField(max_length=50)
-    __str__(self):
-        return self.name
-'''
 
 class Book(models.Model):
     isbn=models.CharField(verbose_name="isbn",max_length=13, primary_key=True)
@@ -50,8 +39,8 @@ class Reader(models.Model):
     school_num=models.CharField(max_length=10, verbose_name="Okul Numarası")
     id=models.CharField(max_length=20, primary_key=True)
     name=models.CharField(max_length=50, verbose_name="İsim")
-    grade=models.IntegerField(verbose_name='Sınıf')
-    department=models.CharField(max_length=5,verbose_name="Şube")
+    grade=models.IntegerField(verbose_name="Sınıf")
+    department=models.CharField(max_length=5, verbose_name="Şube")
     books_lended=models.IntegerField(default=0)
     books_on=models.IntegerField(default=0)
     def __str__(self):

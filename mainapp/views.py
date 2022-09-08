@@ -11,10 +11,8 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from random import shuffle
 
 
-
-
 @login_required
-def register_book(book, unit, description=""):
+def register_book(request, book, unit, description=""):
     try:
         library_entry=Library.objects.filter(unit=unit).get(book=book)
         #kitap varsa sayısını bir artır
@@ -26,8 +24,6 @@ def register_book(book, unit, description=""):
     library_entry.description=description
     library_entry.save()
     return library_entry
-
-
 
 def index(request):
     msg=""
@@ -72,8 +68,7 @@ def index(request):
 
     '''
     liste=list(liste)
-    if not request.GET.get("page"):
-        shuffle(liste)
+    shuffle(liste)
     '''
     if liste!=None:
         paginator=Paginator(liste,25)
@@ -96,7 +91,7 @@ def searchbook(request):
         #kitap kayıtlarda varsa;
         liste=Book.objects.filter(isbn=search)
         if not liste:
-            return redirect("/addbook")
+            return redirect("/kutuphane/addbook")
     else:
         liste=Book.objects.all()
     paginator=Paginator(liste,25)
@@ -113,8 +108,8 @@ def addbook(request):
         if formset.is_valid():
             book=formset.save()
             description=request.POST.get("description")
-            register_book(book,Unit.objects.get(id=request.user.username), description)
-            return redirect("/success")
+            register_book(request, book,Unit.objects.get(id=request.user.username), description)
+            return redirect("/kutuphane/success")
 
     else:
         msg="Aradığınız kitap bulunamadı, Eklemek için aşağıdaki formu doldurunuz."
@@ -147,7 +142,7 @@ def which_lib(request, isbn):
     try:
         book=Book.objects.get(isbn=isbn)
     except ObjectDoesNotExist:
-        return redirect("/index")
+        return redirect("/kutuphane/index")
     liste=Library.objects.filter(book=book)
     units=[]
     for l in liste:
@@ -174,7 +169,7 @@ def save_lending(request,school_num,library_entry_id):
                                             lend_date=datetime.now().strftime("%Y-%m-%d"),
                                             back_date=(datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d"))
             l.save()
-            return redirect("/success")
+            return redirect("/kutuphane/success")
 
     except ObjectDoesNotExist:
         url="/lending/"+library_entry_id
@@ -202,7 +197,7 @@ def addreader(request, school_num, library_entry_id):
                 reader.id=reader_id
                 reader.school_num=school_num
                 reader.save()
-                url="/save_lending/"+school_num+"/"+library_entry_id
+                url="/kutuphane/save_lending/"+school_num+"/"+library_entry_id
                 return redirect(url)
 
     return render(request,'mainapp/adduser.html',{'library_entry':library_entry,
@@ -221,10 +216,10 @@ def lending(request,library_entry_id):
         reader_id=unit_id+'-'+school_num
         try:
             reader=Reader.objects.get(id=reader_id)
-            url="/save_lending/"+school_num+"/"+library_entry_id
+            url="/kutuphane/save_lending/"+school_num+"/"+library_entry_id
             return redirect(url)
         except ObjectDoesNotExist:
-            url="/addreader/"+school_num+"/"+library_entry_id
+            url="/kutuphane/addreader/"+school_num+"/"+library_entry_id
             return redirect(url)
     else:
         return render(request,'mainapp/lending.html', {'library_entry':library_entry})
@@ -308,8 +303,8 @@ def the_book(request,isbn):
     book=Book.objects.get(isbn=isbn)
     if request.method == 'POST':
         description=request.POST.get("description")
-        register_book(book,Unit.objects.get(id=request.user.username),description)
-        return redirect("/success")
+        register_book(request, book,Unit.objects.get(id=request.user.username),description)
+        return redirect("/kutuphane/success")
     return render(request,'mainapp/book.html', {'book':book})
 
 

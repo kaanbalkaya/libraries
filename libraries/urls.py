@@ -18,8 +18,10 @@ from django.urls import path, include
 from mainapp import urls as mainapp_urls
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('kutuphane/admin/', admin.site.urls),
     path('',include(mainapp_urls)),
-    path("accounts/", include("django.contrib.auth.urls")),
+    path("kutuphane/accounts/", include("django.contrib.auth.urls")),
 ]
+
 handler404 = 'mainapp.views.error_404_view'
+

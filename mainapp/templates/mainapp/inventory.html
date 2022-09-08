@@ -31,7 +31,7 @@
   <tr>
   <td>
     {%if z.on_lending < z.amount %}
-        <a href="/lending/{{z.id}}">{{z.book.isbn}}</a>
+        <a href="/kutuphane/lending/{{z.id}}">{{z.book.isbn}}</a>
     {%else%}
         {{z.book.isbn}}
     {%endif%}
@@ -51,6 +51,7 @@
 </tr>
 {%endfor%}
 </table>
+
 <div class="page-selectors">
   {% if liste.has_previous %}
     <a href="?page={{ liste.previous_page_number}}">Önceki</a>
